@@ -1,0 +1,54 @@
+# ── Git ───────────────────────────────────────────────────────
+.git
+.gitignore
+.gitattributes
+
+# ── Python cache ──────────────────────────────────────────────
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ── Virtual environments ───────────────────────────────────────
+.venv/
+venv/
+env/
+ENV/
+
+# ── IDE / Editor ──────────────────────────────────────────────
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# ── Local data (use Docker volumes instead) ───────────────────
+chroma_db/
+*.pdf
+data/
+
+# ── Secrets ───────────────────────────────────────────────────
+.env
+*.key
+*.pem
+
+# ── Temp / Generated ──────────────────────────────────────────
+*.tmp
+*.log
+*.bak
+generate_test_pdf.py
+RAG_Test_Document_MultiModal.pdf
+Enterprise_AI_RAG_Dataset.pdf
+diag.py
+
+# ── OS ────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini

@@ -1,0 +1,46 @@
+# ── Core API ──────────────────────────────────────────────────
+fastapi>=0.111.0,<1.0.0
+uvicorn[standard]>=0.30.0,<1.0.0
+python-multipart>=0.0.9
+pydantic>=2.7.0,<3.0.0
+pydantic-settings>=2.3.0,<3.0.0
+
+# ── PDF Extraction ────────────────────────────────────────────
+PyMuPDF>=1.24.0             # fitz — text + image extraction
+pdfplumber>=0.11.0          # table extraction
+pillow>=10.3.0              # image manipulation
+
+# ── Embeddings ────────────────────────────────────────────────
+# torch: CPU-only slim wheel (avoids the 2GB+ CUDA wheel)
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch>=2.2.0
+sentence-transformers>=3.0.0
+numpy>=1.26.0,<2.0.0
+
+# ── Vector Stores ─────────────────────────────────────────────
+chromadb>=0.5.0,<0.6.0
+pinecone>=3.0.0             # pinecone-client v3+ uses `pinecone` package
+
+# ── LLM & RAG (use compatible langchain ecosystem) ────────────
+langchain>=0.2.0,<0.3.0
+langchain-community>=0.2.0,<0.3.0
+langchain-google-genai>=1.0.0,<2.0.0
+langchain-ollama>=0.1.0
+langchain-chroma>=0.1.0
+langchain-pinecone>=0.1.0
+google-generativeai>=0.7.0
+
+# ── RAG Evaluation ────────────────────────────────────────────
+ragas>=0.1.9,<0.2.0
+datasets>=2.20.0
+
+# ── Utilities ─────────────────────────────────────────────────
+python-dotenv>=1.0.0
+httpx>=0.27.0
+tenacity>=8.3.0
+structlog>=24.0.0
+rich>=13.0.0
+
+# ── Testing ───────────────────────────────────────────────────
+pytest>=8.0.0
+pytest-asyncio>=0.23.0
