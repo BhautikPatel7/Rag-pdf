@@ -15,21 +15,28 @@ cp .env.example .env
 # Edit .env — add your GEMINI_API_KEY or configure Ollama
 ```
 
-### 2. Run (Gemini + ChromaDB — default)
+### 2. Run in Development (Gemini + ChromaDB — default)
 ```bash
 docker compose up --build
 ```
 
-### 3. Run with Ollama (fully local, no API keys)
+### 3. Run in Production (Nginx Reverse Proxy Gateway)
+Runs with immutable code containers, resource limits, and Nginx reverse proxy on port 80:
+```bash
+docker compose -f docker-compose.prod.yml up -d --build
+```
+
+### 4. Run with Ollama (fully local, no API keys)
 ```bash
 # Edit .env: LLM_PROVIDER=ollama
 docker compose --profile ollama up --build
 ```
 
-### 4. API is live at
+### 5. API is live at
 ```
-http://localhost:8000/docs   ← Swagger UI
-http://localhost:8000/health ← Health check
+http://localhost:80/docs   ← Swagger UI via Nginx (Production)
+http://localhost:8000/docs ← Swagger UI direct (Development)
+http://localhost:80/nginx-health ← Instant Nginx health check
 ```
 
 ---
@@ -94,8 +101,12 @@ Rag-pdf/
 │   ├── rag/                ← Retrieval + LLM pipeline (LangChain LCEL)
 │   └── evaluation/         ← RAGAS evaluation runner
 ├── tests/
-├── Dockerfile
-├── docker-compose.yml
+├── nginx/                  ← Production Nginx reverse proxy
+│   ├── Dockerfile          ← Nginx alpine image build
+│   └── nginx.conf          ← RAG optimized Nginx config (50M uploads, timeouts)
+├── Dockerfile              ← Multi-stage API image
+├── docker-compose.yml      ← Development & staging compose (with hot-reload)
+├── docker-compose.prod.yml ← Production compose (with Nginx gateway & resource limits)
 ├── .env.example
 ├── requirements.txt
 └── run.py                  ← Uvicorn entrypoint
@@ -105,9 +116,10 @@ Rag-pdf/
 
 ## Docker Services
 
-| Service | Image | Profile | Purpose |
+| Service | Image | Profile / Compose File | Purpose |
 |---|---|---|---|
-| `rag-api` | local build | always | FastAPI RAG server |
+| `nginx` | local build | `docker-compose.prod.yml` / `nginx` | Public Reverse Proxy (Rate limits, SSL readiness, 300s timeouts) |
+| `rag-api` | local build | always | FastAPI RAG server (internal only in prod) |
 | `chromadb` | `chromadb/chroma:0.5.4` | `chromadb` | Vector DB server mode |
 | `ollama` | `ollama/ollama:latest` | `ollama` | Local LLM (LLaMA 3 + LLaVA) |
 
