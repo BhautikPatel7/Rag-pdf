@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pdf-data-pvc
+  namespace: rag-pdf
+  labels:
+    app.kubernetes.io/name: pdf-storage
+    app.kubernetes.io/part: "04-stateful-storage"
+spec:
+  # ReadWriteMany allows multiple API replicas to read and write uploaded PDFs simultaneously.
+  # If your storage class (like AWS EBS or standard cloud disks) only supports ReadWriteOnce (RWO),
+  # change accessModes to [ReadWriteOnce] or use NFS/EFS/AzureFiles for ReadWriteMany.
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi

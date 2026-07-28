@@ -1,0 +1,14 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: rag-api-pdb
+  namespace: rag-pdf
+  labels:
+    app.kubernetes.io/name: rag-api-pdb
+    app.kubernetes.io/part: "05-production-readiness"
+spec:
+  # Ensure at least 1 replica of the API is ALWAYS available during node drains or updates
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: rag-api

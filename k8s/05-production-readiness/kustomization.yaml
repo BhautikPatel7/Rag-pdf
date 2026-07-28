@@ -1,0 +1,40 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+metadata:
+  name: rag-pdf-production
+
+# Why Kustomize?
+# Instead of running `kubectl apply -f` 15 times on individual files, Kustomize lets you
+# bundle, override, and deploy entire stacks declaratively using `kubectl apply -k .`
+
+namespace: rag-pdf
+
+resources:
+  # Part 1: Foundation (Namespace & Nginx)
+  - ../01-foundation/01-namespace.yaml
+  - ../01-foundation/02-nginx-deployment.yaml
+  
+  # Part 2: Networking (Services)
+  - ../02-networking/01-api-service.yaml
+  - ../02-networking/02-chromadb-service.yaml
+  - ../02-networking/03-ollama-service.yaml
+  - ../02-networking/04-nginx-service.yaml
+  
+  # Part 3: Configuration (ConfigMaps & Secrets)
+  - ../03-configuration/01-configmap.yaml
+  - ../03-configuration/02-secret.yaml
+  
+  # Part 4: Stateful Storage & AI/Database Workloads
+  - ../04-stateful-storage/01-pdf-pvc.yaml
+  - ../04-stateful-storage/02-chromadb-statefulset.yaml
+  - ../04-stateful-storage/03-ollama-statefulset.yaml
+  
+  # Part 5: Production API Deployment, Autoscaling & High Availability
+  - ./01-api-deployment-prod.yaml
+  - ./02-api-hpa.yaml
+  - ./03-pdb.yaml
+
+commonLabels:
+  app.kubernetes.io/managed-by: kustomize
+  app.kubernetes.io/part-of: rag-pdf-ecosystem

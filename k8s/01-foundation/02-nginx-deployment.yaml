@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rag-nginx-deployment
+  namespace: rag-pdf
+  labels:
+    app.kubernetes.io/name: rag-nginx
+    app.kubernetes.io/component: gateway
+    app.kubernetes.io/part: "01-foundation"
+spec:
+  # Replicas defines how many identical copies of this Pod should run simultaneously.
+  # If a node crashes, Kubernetes automatically spins up a new pod to maintain this count!
+  replicas: 2
+  
+  # The Selector tells the Deployment controller which Pods belong to it.
+  # It must match the labels defined in template.metadata.labels below.
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: rag-nginx
+  
+  # The Template describes the Pod that will be created.
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: rag-nginx
+        app.kubernetes.io/component: gateway
+    spec:
+      containers:
+        - name: nginx
+          # In production, replace this with your container registry path (e.g. ghcr.io/bhautikpatel7/rag-pdf-nginx:latest)
+          image: rag-pdf-nginx:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+              name: http
+              protocol: TCP
+          # Translating docker-compose deploy.resources.limits to K8s requests & limits
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"  # 100 millicores = 0.1 CPU
+            limits:
+              memory: "256Mi"
+              cpu: "500m"  # 500 millicores = 0.5 CPU

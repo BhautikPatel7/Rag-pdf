@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: rag-pdf
+  labels:
+    name: rag-pdf
+    environment: production
+    app.kubernetes.io/name: rag-pdf
+    app.kubernetes.io/part: "01-foundation"
+---
+# Why Namespaces?
+# Namespaces provide a virtual cluster inside Kubernetes. Instead of running all services
+# in the default namespace (like putting all files on your desktop), we isolate the RAG-PDF
+# application. This allows easier cleanup (deleting the namespace deletes everything inside it),
+# resource quotas, and role-based access control (RBAC).

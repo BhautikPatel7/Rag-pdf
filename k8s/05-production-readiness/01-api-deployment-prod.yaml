@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rag-api-deployment
+  namespace: rag-pdf
+  labels:
+    app.kubernetes.io/name: rag-api
+    app.kubernetes.io/component: backend
+    app.kubernetes.io/part: "05-production-readiness"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: rag-api
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: rag-api
+        app.kubernetes.io/component: backend
+    spec:
+      containers:
+        - name: rag-api
+          image: rag-pdf-api:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+              name: http
+          envFrom:
+            - configMapRef:
+                name: rag-config
+            - secretRef:
+                name: rag-secrets
+          volumeMounts:
+            - name: pdf-storage
+              mountPath: /data/pdfs
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "500m"
+            limits:
+              memory: "4Gi"
+              cpu: "2000m"
+          # ── Startup Probe ──────────────────────────────────────────
+          # Gives the Python FastAPI app up to 120s to load embedding models
+          # before liveness/readiness checks begin.
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            failureThreshold: 24
+            periodSeconds: 5
+          # ── Liveness Probe ─────────────────────────────────────────
+          # Replaces Docker Compose healthcheck! If the app deadlocks, K8s restarts it.
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 3
+          # ── Readiness Probe ────────────────────────────────────────
+          # If ChromaDB or Ollama goes down temporarily, readiness fails
+          # and K8s stops sending user traffic to this pod until it recovers!
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 2
+      volumes:
+        - name: pdf-storage
+          persistentVolumeClaim:
+            claimName: pdf-data-pvc

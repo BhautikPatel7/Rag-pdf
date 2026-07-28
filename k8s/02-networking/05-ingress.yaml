@@ -1,0 +1,29 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: rag-ingress
+  namespace: rag-pdf
+  annotations:
+    # Notice: In Kubernetes-native architectures, you often don't need a custom Nginx container!
+    # Instead, an Ingress Controller (like ingress-nginx or Traefik) handles SSL termination,
+    # routing, and timeouts directly.
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+  labels:
+    app.kubernetes.io/name: rag-ingress
+    app.kubernetes.io/part: "02-networking"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: rag.example.local # Add this to your /etc/hosts (or C:\Windows\System32\drivers\etc\hosts) pointing to localhost/cluster IP
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: rag-api
+                port:
+                  number: 8000

@@ -1,0 +1,30 @@
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: rag-api-hpa
+  namespace: rag-pdf
+  labels:
+    app.kubernetes.io/name: rag-api-hpa
+    app.kubernetes.io/part: "05-production-readiness"
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: rag-api-deployment
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    # Scale up if average CPU utilization across pods exceeds 70%
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    # Scale up if average Memory utilization across pods exceeds 80%
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80

@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: chromadb
+  namespace: rag-pdf
+  labels:
+    app.kubernetes.io/name: chromadb
+    app.kubernetes.io/component: database
+    app.kubernetes.io/part: "04-stateful-storage"
+spec:
+  serviceName: "chromadb"
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: chromadb
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: chromadb
+        app.kubernetes.io/component: database
+    spec:
+      containers:
+        - name: chromadb
+          image: chromadb/chroma:0.5.4
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+              name: http
+          env:
+            - name: IS_PERSISTENT
+              value: "TRUE"
+            - name: ANONYMIZED_TELEMETRY
+              value: "FALSE"
+          volumeMounts:
+            - name: chroma-data
+              mountPath: /chroma/chroma
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "500m"
+            limits:
+              memory: "2Gi"
+              cpu: "1000m"
+  # Why volumeClaimTemplates in a StatefulSet?
+  # Instead of manually creating a separate PVC file, volumeClaimTemplates tells Kubernetes
+  # to automatically generate a dedicated PersistentVolumeClaim for each pod replica!
+  # If pod chromadb-0 restarts, it automatically reattaches to chroma-data-chromadb-0!
+  volumeClaimTemplates:
+    - metadata:
+        name: chroma-data
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 20Gi
